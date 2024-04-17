@@ -100,4 +100,49 @@ public class MelonController {
                 CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rList)
         );
     }
+
+    /* 수집된 멜론 차트 저장된 MongoDB 컬렉션 삭제 */
+    @PostMapping(value = "dropCollection")
+    public ResponseEntity dropCollection() throws Exception {
+
+        log.info(this.getClass().getName() + ".dropCollection Start!");
+
+        String msg = ""; // 삭제 결과 출력
+
+        int res = melonService.dropCollection();
+
+        if (res == 1) {
+            msg = "멜론차트 삭제 성공!";
+        } else {
+            msg = "멜론차트 삭제 실패!";
+        }
+
+        MsgDTO dto = MsgDTO.builder().result(res).msg(msg).build();
+
+        log.info(this.getClass().getName() + ".dropCollection End!");
+
+        return ResponseEntity.ok(
+                CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), dto)
+        );
+
+    }
+
+    /* 멜론 노래 리스트 한번에 저장 */
+    @PostMapping(value = "insertManyField")
+    public ResponseEntity insertManyField() throws Exception {
+
+        log.info(this.getClass().getName() + ".insertManyField Start!");
+
+        List<MelonDTO> rList = Optional.ofNullable(melonService.insertManyField())
+                        .orElseGet(ArrayList::new);
+
+        log.info(this.getClass().getName() + ".insertManyField End!");
+
+        return ResponseEntity.ok(
+                CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rList)
+        );
+
+    }
+
+
 }

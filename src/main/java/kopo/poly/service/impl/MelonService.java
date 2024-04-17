@@ -142,5 +142,50 @@ public class MelonService implements IMelonService {
         log.info(this.getClass().getName() + ".getSingerSong End!");
 
         return rList;
+
+    }
+
+    /* 오늘 생성된 컬렉션 삭제 */
+
+    @Override
+    public int dropCollection() throws Exception {
+
+        log.info(this.getClass().getName() + ".dropCollection Start!");
+
+        int res = 0;
+
+        // MongoDB에 저장된 컬렉션 이름
+        String colNm = "MELON_" + DateUtil.getDateTime("yyyyMMdd");
+
+        // 기존 수집된 컬렉션 삭제
+        res = melonMapper.dropCollection(colNm);
+
+        log.info(this.getClass().getName() + ".getSingerSong End!");
+
+        return res;
+    }
+
+    @Override
+    public List<MelonDTO> insertManyField() throws Exception {
+
+        log.info(this.getClass().getName() + ".insertManyField Start!");
+
+        List<MelonDTO> rList = null; // 변경된 데이터 조회 결과
+
+        // 생성할 컬렉션명
+        String colNm = "MELON_" + DateUtil.getDateTime("yyyyMMdd");
+
+        // MongoDB에 저장하기
+        if (melonMapper.insertManyField(colNm, this.doCollect()) == 1) { // insertMany Mapper 호출
+
+            // 변경된 값을 확인하기 위해 MongoDB로부터 데이터 조회
+            rList = melonMapper.getSongList(colNm);
+
+        }
+
+        log.info(this.getClass().getName() + ".insertManyField End!");
+
+        return rList;
+
     }
 }

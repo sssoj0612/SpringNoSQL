@@ -7,7 +7,6 @@ import com.mongodb.client.MongoCollection;
 import kopo.poly.dto.MelonDTO;
 import kopo.poly.persistance.mongodb.AbstractMongoDBComon;
 import kopo.poly.persistance.mongodb.IMelonMapper;
-import kopo.poly.persistance.mongodb.IMongoMapper;
 import kopo.poly.util.CmmUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +15,7 @@ import org.bson.conversions.Bson;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -197,5 +193,54 @@ public class MelonMapper extends AbstractMongoDBComon implements IMelonMapper {
         log.info(this.getClass().getName() + ".getSingerSong End!");
 
         return rList;
+    }
+
+    @Override
+    public int dropCollection(String colNm) throws Exception {
+
+        log.info(this.getClass().getName() + ".dropCollection Start!");
+
+        int res = 0;
+
+        super.dropCollection(mongodb, colNm);
+
+        res = 1;
+
+        log.info(this.getClass().getName() + ".dropCollection End!");
+
+        return res;
+    }
+
+    @Override
+    public int insertManyField(String colNm, List<MelonDTO> pList) throws Exception {
+
+        log.info(this.getClass().getName() + ".insertManyField Start!");
+
+        int res = 0;
+
+        if ( pList == null ) {
+            pList = new LinkedList<>();
+        }
+
+        // 데이터를 저장할 컬렉션 생성
+        super.createCollection(mongodb, colNm, "collectTime"); // 상속받은 부모 함수 호출
+
+        // 저장할 컬렉션 객체 생성
+        MongoCollection<Document> col = mongodb.getCollection(colNm);
+
+        List<Document> list = new ArrayList<>();
+
+        // 람다식 활용 stream과 -> 사용
+        pList.parallelStream().forEach(melon ->
+                list.add(new Document(new ObjectMapper().convertValue(melon, Map.class))));
+
+        // 레코드 리스트 단위로 한번에 저장
+        col.insertMany(list);
+
+        res = 1;
+
+        log.info(this.getClass().getName() + ".insertManyField End!");
+
+        return res;
     }
 }
