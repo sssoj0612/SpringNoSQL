@@ -144,5 +144,24 @@ public class MelonController {
 
     }
 
+    /* 가수 이름 수정 */
+    @PostMapping(value = "updateField")
+    public ResponseEntity updateField(@RequestBody MelonDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".updateField Start!");
+
+        log.info("pDTO : " + pDTO); // JSON 구조로 받은 값 잘 받았는지 로그찍기
+
+        List<MelonDTO> rList = Optional.ofNullable(melonService.updateField(pDTO))
+                .orElseGet(ArrayList::new);
+
+        log.info(this.getClass().getName() + ".updateField End!");
+
+        return ResponseEntity.ok(
+                CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rList)
+        );
+
+    }
+
 
 }

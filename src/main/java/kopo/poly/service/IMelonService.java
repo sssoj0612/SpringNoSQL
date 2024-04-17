@@ -25,4 +25,9 @@ public interface IMelonService {
     /* 멜론 노래 리스트 한번에 저장 */
     List<MelonDTO> insertManyField() throws Exception;
 
+    /* singer 필드 값인 방탄소년단을 BTS로 변경하기 */
+    List<MelonDTO> updateField(MelonDTO pDTO) throws Exception;
+
+
+
 }
