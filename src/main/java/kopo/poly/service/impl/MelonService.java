@@ -218,4 +218,64 @@ public class MelonService implements IMelonService {
         return rList;
 
     }
+
+    @Override
+    public List<MelonDTO> updateAddField(MelonDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".updateAddField Start!");
+
+        List<MelonDTO> rList = null; // 변경된 데이터 조회 결과
+
+        // 수정할 컬렉션
+        String colNm = "MELON_" + DateUtil.getDateTime("yyyyMMdd");
+
+        // 기존 수집된 멜론Top100 수집한 컬렉션 삭제
+        melonMapper.dropCollection(colNm);
+
+        // 멜론Top100 수집하기
+        if (this.collectMelonSong() == 1) {
+
+            // 예: singer 필드에 저장된 '방탄소년단' 값을 'BTS'로 변경
+            if (melonMapper.updateAddField(colNm, pDTO) == 1) {
+
+                // 변경된 값을 확인하기 위해 MongoDB로부터 데이터 조회
+                rList = melonMapper.getSingerSongNickname(colNm, pDTO); // 수정된 결과 조회
+            }
+        }
+
+        log.info(this.getClass().getName() + ".updateAddField End!");
+
+        return rList;
+
+    }
+
+    @Override
+    public List<MelonDTO> updateAddListField(MelonDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".updateAddListField Start!");
+
+        List<MelonDTO> rList = null; // 변경된 데이터 조회 결과
+
+        // 수정할 컬렉션
+        String colNm = "MELON_" + DateUtil.getDateTime("yyyyMMdd");
+
+        // 기존 수집된 멜론Top100 수집한 컬렉션 삭제
+        melonMapper.dropCollection(colNm);
+
+        // 멜론Top100 수집하기
+        if (this.collectMelonSong() == 1) {
+
+            // 예: singer 필드에 저장된 '방탄소년단' 값을 'BTS'로 변경
+            if (melonMapper.updateAddListField(colNm, pDTO) == 1) {
+
+                // 변경된 값을 확인하기 위해 MongoDB로부터 데이터 조회
+                rList = melonMapper.getSingerSongMember(colNm, pDTO); // 수정된 결과 조회
+            }
+        }
+
+        log.info(this.getClass().getName() + ".updateAddListField End!");
+
+        return rList;
+
+    }
 }

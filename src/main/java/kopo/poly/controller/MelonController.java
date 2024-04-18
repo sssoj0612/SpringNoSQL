@@ -163,5 +163,40 @@ public class MelonController {
 
     }
 
+    @PostMapping(value = "updateAddField")
+    public ResponseEntity updateAddField(@RequestBody MelonDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".updateAddField Start!");
+
+        log.info("pDTO : " + pDTO); // JSON 구조로 받은 값 잘 받았는지 로그찍기
+
+        List<MelonDTO> rList = Optional.ofNullable(melonService.updateAddField(pDTO))
+                .orElseGet(ArrayList::new);
+
+        log.info(this.getClass().getName() + ".updateAddField End!");
+
+        return ResponseEntity.ok(
+                CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rList)
+        );
+
+    }
+
+    @PostMapping(value = "updateAddListField")
+    public ResponseEntity updateAddListField(@RequestBody MelonDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".updateAddListField Start!");
+
+        log.info("pDTO : " + pDTO); // JSON 구조로 받은 값 잘 받았는지 로그찍기
+
+        List<MelonDTO> rList = Optional.ofNullable(melonService.updateAddListField(pDTO))
+                .orElseGet(ArrayList::new);
+
+        log.info(this.getClass().getName() + ".updateAddListField End!");
+
+        return ResponseEntity.ok(
+                CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rList)
+        );
+
+    }
 
 }

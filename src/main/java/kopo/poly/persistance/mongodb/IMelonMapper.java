@@ -52,4 +52,27 @@ public interface IMelonMapper {
     * @return 노래리스트 */
     List<MelonDTO> getUpdateSinger(String colNm, MelonDTO pDTO) throws Exception;
 
+    /* 필드 추가하기 (예: 가수의 닉네임 필드 추가)
+     * @param colNm 저장할 컬렉션 이름
+     * @param pDTO 추가를 위해 검색할 가수이름, 추가할 서브 가수이름
+     * @return 저장결과 */
+    int updateAddField(String colNm, MelonDTO pDTO) throws Exception;
+
+    /* 가수의 노래 가져오기 (닉네임 포함 조회)
+     * @param colNm 조회할 컬렉션 이름
+     * @param pDTO 가수명
+     * @return 노래리스트 */
+    List<MelonDTO> getSingerSongNickname(String colNm, MelonDTO pDTO) throws Exception;
+
+    /* 가수의 List 구조의 Member 필드 추가
+     * @param colNm 저장할 컬렉션 이름
+     * @param pDTO 추가를 위해 검색할 가수이름, 추가할 멤버 이름
+     * @return 저장결과 */
+    int updateAddListField(String colNm, MelonDTO pDTO) throws Exception;
+
+    /* 가수의 노래 가져오기 (멤버 포함 조회)
+     * @param colNm 조회할 컬렉션 이름
+     * @param pDTO 가수명
+     * @return 노래리스트 */
+    List<MelonDTO> getSingerSongMember(String colNm, MelonDTO pDTO) throws Exception;
 }

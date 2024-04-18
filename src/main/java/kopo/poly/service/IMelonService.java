@@ -28,6 +28,12 @@ public interface IMelonService {
     /* singer 필드 값인 방탄소년단을 BTS로 변경하기 */
     List<MelonDTO> updateField(MelonDTO pDTO) throws Exception;
 
+    /* BTS 노래마다에 닉네임 필드 추가하고
+    *  그 닉네임 필드에 BTS 저장 */
+    List<MelonDTO> updateAddField(MelonDTO pDTO) throws Exception;
 
+    /* BTS 노래마다에 멤버 필드 추가하고
+     * 그 멤버 필드에 BTS 멤버 이름 List로 저장 */
+    List<MelonDTO> updateAddListField(MelonDTO pDTO) throws Exception;
 
 }
