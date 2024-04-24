@@ -487,4 +487,123 @@ public class MelonMapper extends AbstractMongoDBComon implements IMelonMapper {
 
         return rList;
     }
+
+
+    /* 필드 수정 및 추가 */
+
+    @Override
+    public int updateFieldAndAddField(String colNm, MelonDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".updateFieldAndAddField Start!");
+
+        int res = 0;
+
+        MongoCollection<Document> col = mongodb.getCollection(colNm);
+
+        String singer = CmmUtil.nvl(pDTO.singer());
+        String updateSinger = CmmUtil.nvl(pDTO.updateSinger());
+        String addFieldValue = CmmUtil.nvl(pDTO.addFieldValue());
+
+        log.info("pColNm : " + colNm);
+        log.info("pDTO : " + pDTO);
+
+        // 조회할 조건 (SQL의 WHERE 역할 =
+        // SELECT * FROM MELON where singer = 'BTS')
+        Document query = new Document();
+        query.append("singer", singer);
+
+        // 몽고db의 find 명령어를 통해 조회할 경우 사용
+        // 조회하는 데이터 양이 적은 경우 find 사용, 많은 경우 무조건 Aggregate 사용
+        FindIterable<Document> rs = col.find(query);
+
+        // 한 줄로 append해서 수정할 필드 추가해도되지만, 가독성이 떨어져 줄마다 append 함
+        Document updateDoc = new Document();
+        updateDoc.append("singer" , updateSinger); // 기존 필드 수정
+        updateDoc.append("addData" , addFieldValue); // 신규 필드 추가
+
+        rs.forEach(doc -> col.updateOne(doc, new Document("$set", updateDoc)));
+
+        res = 1;
+
+        log.info(this.getClass().getName() + ".updateFieldAndAddField End!");
+
+        return res;
+    }
+
+    // 수정된 가수 이름으로 조회 및 추가된 필드 조회
+    @Override
+    public List<MelonDTO> getSingerSongAddData(String colNm, MelonDTO pDTO) throws Exception {
+        log.info(this.getClass().getName() + ".getSingerSongAddData Start!");
+
+        // 조회 결과를 전달하기 위한 객체 생성하기
+        List<MelonDTO> rList = new LinkedList<>();
+
+        MongoCollection<Document> col = mongodb.getCollection(colNm);
+
+        // 조회할 조건 (SQL의 WHERE 역할 =
+        // SELECT song, singer FROM MELON where singer = 'BTS')
+        Document query = new Document();
+        query.append("singer", CmmUtil.nvl(pDTO.updateSinger()));
+
+        // 조회 결과 중 출력할 컬럼들(SQL의 SELECT절과 FROM절 가운데 컬럼들과 유사)
+        Document projection = new Document();
+        projection.append("song", "$song");
+        projection.append("singer", "$singer");
+        projection.append("addData", "$addData");
+
+        // 몽고db는 무조건 ObjectId가 자동생성되는데 이건 사용하지 않음
+        projection.append("_id", 0);
+
+        // 몽고db의 find 명령어를 통해 조회할 경우 사용
+        // 조회하는 데이터 양이 적은 경우 find 사용, 많은 경우 무조건 Aggregate 사용
+        FindIterable<Document> rs = col.find(query).projection(projection);
+
+        for (Document doc : rs) {
+            String song = CmmUtil.nvl(doc.getString("song"));
+            String singer = CmmUtil.nvl(doc.getString("singer"));
+            String addData = CmmUtil.nvl(doc.getString("addData"));
+
+            log.info("song : " + song + "/ singer : " + singer + "/ addData : " + addData);
+
+            MelonDTO rDTO = MelonDTO.builder().song(song).singer(singer).addFieldValue(addData).build();
+
+            // 레코드 결과 List에 저장
+            rList.add(rDTO);
+        }
+
+        log.info(this.getClass().getName() + ".getSingerSongAddData End!");
+
+        return rList;
+    }
+
+
+    @Override
+    public int deleteDocument(String colNm, MelonDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".deleteDocument Start!");
+
+        int res = 0;
+
+        MongoCollection<Document> col = mongodb.getCollection(colNm);
+
+        String singer = CmmUtil.nvl(pDTO.singer());
+
+        log.info("pColNm : " + colNm);
+        log.info("pDTO : " + pDTO);
+
+        // 조회할 조건 (SQL의 WHERE 역할 =
+        // SELECT song, singer FROM MELON where singer = 'BTS')
+        Document query = new Document();
+        query.append("singer", singer);
+
+        FindIterable<Document> rs = col.find(query);
+
+        rs.forEach(col::deleteOne);
+
+        res = 1;
+
+        log.info(this.getClass().getName() + ".deleteDocument End!");
+
+        return res;
+    }
 }
