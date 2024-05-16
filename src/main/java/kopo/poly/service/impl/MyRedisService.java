@@ -26,6 +26,7 @@ public class MyRedisService implements IMyRedisService {
         RedisDTO rDTO = null;
 
         int res = myRedisMapper.saveString(redisKey, pDTO); // 저장
+
         if (res == 1) { // 저장 성공시 조회
             rDTO = myRedisMapper.getString(redisKey);
         } else {
@@ -34,6 +35,33 @@ public class MyRedisService implements IMyRedisService {
         }
 
         log.info(this.getClass().getName() + ".saveString End!");
+
+        return rDTO;
+
+    }
+
+
+    @Override // JSON 형태로 저장 및 조회 구현
+    public RedisDTO saveStringJSON(RedisDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".saveStringJSON Start!");
+
+        // 저장할 RedisDB 키
+        String redisKey = "myRedis_String_JSON";
+
+        // 저장 결과
+        RedisDTO rDTO;
+
+        int res = myRedisMapper.saveStringJSON(redisKey, pDTO); // 저장
+
+        if (res == 1) { // 저장 성공시 조회
+            rDTO = myRedisMapper.getStringJSON(redisKey);
+        } else {
+            log.info("Redis 저장 실패!");
+            throw new Exception("Redis 저장 실패!");
+        }
+
+        log.info(this.getClass().getName() + ".saveStringJSON End!");
 
         return rDTO;
 

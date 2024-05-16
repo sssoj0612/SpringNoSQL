@@ -40,4 +40,21 @@ public class RedisController {
         );
     }
 
+    @PostMapping(value = "saveStringJSON")
+    public ResponseEntity saveStringJSON(@RequestBody RedisDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".saveStringJSON Start!");
+
+        log.info("pDTO(html에서 전달 받은 값) : " + pDTO); // 전달 받은 값
+
+        RedisDTO rDTO = Optional.ofNullable(myRedisService.saveStringJSON(pDTO))
+                .orElseGet(()->RedisDTO.builder().build());
+
+        log.info(this.getClass().getName() + ".saveStringJSON End!");
+
+        return ResponseEntity.ok(
+                CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rDTO)
+        );
+    }
+
 }

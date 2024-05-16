@@ -6,6 +6,7 @@ import kopo.poly.util.CmmUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
 
@@ -27,10 +28,10 @@ public class MyRedisMapper implements IMyRedisMapper {
 
     }
 
-    @Override   // 키 저장
+    @Override   // 문자열 저장
     public int saveString(String redisKey, RedisDTO pDTO) throws Exception {
 
-        log.info(this.getClass().getName() + "saveString Start!");
+        log.info(this.getClass().getName() + ".saveString Start!");
 
         int res;
 
@@ -51,16 +52,16 @@ public class MyRedisMapper implements IMyRedisMapper {
 
         res = 1;
 
-        log.info(this.getClass().getName() + "saveString End!");
+        log.info(this.getClass().getName() + ".saveString End!");
 
         return res;
     }
 
 
-    @Override   // 키 조회
+    @Override   // 문자열 조회
     public RedisDTO getString(String redisKey) throws Exception {
 
-        log.info(this.getClass().getName() + "getString Start!");
+        log.info(this.getClass().getName() + ".getString Start!");
 
         log.info("String redisKey : " + redisKey);
 
@@ -76,9 +77,64 @@ public class MyRedisMapper implements IMyRedisMapper {
             rDTO = RedisDTO.builder().text(res).build(); // RedisDB에 저장된 데이터를 DTO에 저장
         }
 
-        log.info(this.getClass().getName() + "getString End!");
+        log.info(this.getClass().getName() + ".getString End!");
 
         return rDTO;
 
+    }
+
+
+    @Override // 문자열 JSON 저장
+    public int saveStringJSON(String redisKey, RedisDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".saveStringJSON Start!");
+
+        int res;
+
+        /* redis 저장 및 읽기에 대한 데이터 타입 지정(String 타입으로 지정함) */
+        redisDB.setKeySerializer(new StringRedisSerializer()); // String타입
+
+        /* RedisDTO에 저장된 데이터를 자동으로 JSON으로 변경하기 */
+        redisDB.setValueSerializer(new Jackson2JsonRedisSerializer<>(RedisDTO.class)); // DTO값을 JSON으로 변환
+
+        this.deleteRedisKey(redisKey); // RedisDB 저장된 키 삭제
+
+        // 데이터 저장하기
+        redisDB.opsForValue().set(redisKey, pDTO);
+
+        // RedisDB에 저장되는 데이터의 유효시간 설정 (TTL 설정 필수!)
+        // 2일이 지나면 자동으로 데이터가 삭제되도록 설정
+        redisDB.expire(redisKey, 2, TimeUnit.DAYS);
+
+        res = 1;
+
+        log.info(this.getClass().getName() + ".saveStringJSON End!");
+
+        return res;
+    }
+
+
+    @Override // 문자열 JSON으로 저장된거 조회
+    public RedisDTO getStringJSON(String redisKey) throws Exception {
+
+        log.info(this.getClass().getName() + ".getStringJSON Start!");
+
+        log.info("String redisKey : " + redisKey);
+
+        RedisDTO rDTO = null;
+
+        /* redis 저장 및 읽기에 대한 데이터 타입 지정(String 타입으로 지정함) */
+        redisDB.setKeySerializer(new StringRedisSerializer()); // String타입
+
+        /* RedisDTO에 저장된 데이터를 자동으로 JSON으로 변경하기 */
+        redisDB.setValueSerializer(new Jackson2JsonRedisSerializer<>(RedisDTO.class)); // DTO값을 JSON으로 변환
+
+        if (redisDB.hasKey(redisKey)) { // 데이터가 존재한다면 조회하기
+            rDTO = (RedisDTO) redisDB.opsForValue().get(redisKey);
+        }
+
+        log.info(this.getClass().getName() + ".getStringJSON End!");
+
+        return rDTO;
     }
 }
