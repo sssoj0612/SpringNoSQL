@@ -126,4 +126,21 @@ public class RedisController {
         );
     }
 
+    @PostMapping(value = "saveZSetJSON")
+    public ResponseEntity saveZSetJSON(@RequestBody List<RedisDTO> pList) throws Exception {
+
+        log.info(this.getClass().getName() + ".saveZSetJSON Start!");
+
+        log.info("pDTO(html에서 전달 받은 값) : " + pList); // 전달 받은 값
+
+        Set<RedisDTO> rSet = Optional.ofNullable(myRedisService.saveZSetJSON(pList))
+                .orElseGet(HashSet::new);
+
+        log.info(this.getClass().getName() + ".saveZSetJSON End!");
+
+        return ResponseEntity.ok(
+                CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rSet)
+        );
+    }
+
 }
