@@ -260,4 +260,68 @@ public class MyRedisMapper implements IMyRedisMapper {
         return rList;
 
     }
+
+
+    @Override
+    public int saveHash(String redisKey, RedisDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".saveHash Start!");
+
+        int res;
+
+        /* redis 저장 및 읽기에 대한 데이터 타입 지정(String 타입으로 지정함) */
+        redisDB.setKeySerializer(new StringRedisSerializer()); // String타입
+        redisDB.setHashKeySerializer(new StringRedisSerializer()); // Hash타입 구조의 키 타입, String타입
+        redisDB.setHashValueSerializer(new StringRedisSerializer()); // Hash타입 구조의 값 타입, String타입
+
+        this.deleteRedisKey(redisKey); // RedisDB 저장된 키 삭제
+
+        // 데이터 저장하기
+        redisDB.opsForHash().put(redisKey, "name", CmmUtil.nvl(pDTO.name()));
+        redisDB.opsForHash().put(redisKey, "email", CmmUtil.nvl(pDTO.email()));
+        redisDB.opsForHash().put(redisKey, "addr", CmmUtil.nvl(pDTO.addr()));
+
+        // RedisDB에 저장되는 데이터의 유효시간 설정 (TTL 설정 필수!)
+        // 100분이 지나면 자동으로 데이터가 삭제되도록 설정
+        redisDB.expire(redisKey, 100, TimeUnit.MINUTES);
+
+        res = 1;
+
+        log.info(this.getClass().getName() + ".saveHash End!");
+
+        return res;
+
+    }
+
+
+    @Override
+    public RedisDTO getHash(String redisKey) throws Exception {
+
+        log.info(this.getClass().getName() + ".getHash Start!");
+
+        RedisDTO rDTO = null;
+
+        /* Redis 저장 및 읽기에 대한 데이터 타입 지정(반드시 저장할때 사용한 타입과 동일하게 맞추기) */
+        redisDB.setKeySerializer(new StringRedisSerializer()); // String 타입
+        redisDB.setHashKeySerializer(new StringRedisSerializer()); // String타입
+        redisDB.setHashValueSerializer(new StringRedisSerializer()); // String타입
+
+        if (redisDB.hasKey(redisKey)) { // 데이터가 존재한다면 조회하기
+
+            String name = CmmUtil.nvl((String) redisDB.opsForHash().get(redisKey, "name"));
+            String email = CmmUtil.nvl((String) redisDB.opsForHash().get(redisKey, "email"));
+            String addr = CmmUtil.nvl((String) redisDB.opsForHash().get(redisKey, "addr"));
+
+            log.info("name : " + name);
+            log.info("email : " + email);
+            log.info("addr : " + addr);
+
+            rDTO = RedisDTO.builder().name(name).email(email).addr(addr).build();
+        }
+
+        log.info(this.getClass().getName() + ".getHash End!");
+
+        return rDTO;
+
+    }
 }

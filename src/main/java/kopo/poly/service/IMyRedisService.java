@@ -17,4 +17,7 @@ public interface IMyRedisService {
 
     /* List 타입에 JSON 형태로 저장 */
     List<RedisDTO> saveListJSON(List<RedisDTO> pList) throws Exception;
+
+    /* Hash 타입 저장 및 가져오기 */
+    RedisDTO saveHash(RedisDTO pDTO) throws Exception;
 }

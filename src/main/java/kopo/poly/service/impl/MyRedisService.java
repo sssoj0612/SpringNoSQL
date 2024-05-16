@@ -97,7 +97,7 @@ public class MyRedisService implements IMyRedisService {
     }
 
 
-    @Override
+    @Override // List 구조에 JSON 형태로 저장 및 조회
     public List<RedisDTO> saveListJSON(List<RedisDTO> pList) throws Exception {
 
         log.info(this.getClass().getName() + ".saveListJSON Start!");
@@ -120,6 +120,33 @@ public class MyRedisService implements IMyRedisService {
         log.info(this.getClass().getName() + ".saveListJSON End!");
 
         return rList;
+
+    }
+
+
+    @Override // Hash 구조에 저장 및 조회
+    public RedisDTO saveHash(RedisDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".saveHash Start!");
+
+        // 저장할 RedisDB 키
+        String redisKey = "myRedis_Hash";
+
+        // 저장 결과
+        RedisDTO rDTO;
+
+        int res = myRedisMapper.saveHash(redisKey, pDTO); // 저장
+
+        if (res == 1) { // 저장 성공시 조회
+            rDTO = myRedisMapper.getHash(redisKey);
+        } else {
+            log.info("Redis 저장 실패!");
+            throw new Exception("Redis 저장 실패!");
+        }
+
+        log.info(this.getClass().getName() + ".saveHash End!");
+
+        return rDTO;
 
     }
 }

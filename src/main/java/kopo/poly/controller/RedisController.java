@@ -94,5 +94,21 @@ public class RedisController {
         );
     }
 
+    @PostMapping(value = "saveHash")
+    public ResponseEntity saveHash(@RequestBody RedisDTO pDTO) throws Exception {
+
+        log.info(this.getClass().getName() + ".saveHash Start!");
+
+        log.info("pDTO(html에서 전달 받은 값) : " + pDTO); // 전달 받은 값
+
+        RedisDTO rDTO = Optional.ofNullable(myRedisService.saveHash(pDTO))
+                .orElseGet(() -> RedisDTO.builder().build());
+
+        log.info(this.getClass().getName() + ".saveHash End!");
+
+        return ResponseEntity.ok(
+                CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rDTO)
+        );
+    }
 
 }

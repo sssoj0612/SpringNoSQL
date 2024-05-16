@@ -56,4 +56,17 @@ public interface IMyRedisMapper {
      * @param redisKey 가져올 RedisKey
      * @return         결과값 */
     List<RedisDTO> getListJSON(String redisKey) throws Exception;
+
+
+    /* Hash 타입에 여러 문자열로 저장하기
+     * @param redisKey Redis 저장 키
+     * @param pList    저장할 정보
+     * @return         저장 성공 여부 */
+    int saveHash(String redisKey, RedisDTO pDTO) throws Exception;
+
+
+    /* Hash 타입에 문자열로 저장된 데이터 가져오기
+     * @param redisKey 가져올 RedisKey
+     * @return         결과값 */
+    RedisDTO getHash(String redisKey) throws Exception;
 }
