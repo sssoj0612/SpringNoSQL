@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @RequestMapping(value = "/redis/v1")
@@ -108,6 +106,23 @@ public class RedisController {
 
         return ResponseEntity.ok(
                 CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rDTO)
+        );
+    }
+
+    @PostMapping(value = "saveSetJSON")
+    public ResponseEntity saveSetJSON(@RequestBody List<RedisDTO> pList) throws Exception {
+
+        log.info(this.getClass().getName() + ".saveSetJSON Start!");
+
+        log.info("pDTO(html에서 전달 받은 값) : " + pList); // 전달 받은 값
+
+        Set<RedisDTO> rSet = Optional.ofNullable(myRedisService.saveSetJSON(pList))
+                .orElseGet(HashSet::new);
+
+        log.info(this.getClass().getName() + ".saveSetJSON End!");
+
+        return ResponseEntity.ok(
+                CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rSet)
         );
     }
 

@@ -3,6 +3,7 @@ package kopo.poly.persistance.mongodb.redis;
 import kopo.poly.dto.RedisDTO;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IMyRedisMapper {
 
@@ -69,4 +70,17 @@ public interface IMyRedisMapper {
      * @param redisKey 가져올 RedisKey
      * @return         결과값 */
     RedisDTO getHash(String redisKey) throws Exception;
+
+
+    /* Hash 타입에 JSON 형태로 저장 (동기화)
+     * @param redisKey Redis 저장 키
+     * @param pList    저장할 정보
+     * @return         저장 성공 여부 */
+    int saveSetJSON(String redisKey, List<RedisDTO> pList) throws Exception;
+
+
+    /* Hash 타입에 JSON 형태로 저장된 데이터 가져오기
+     * @param redisKey 가져올 RedisKey
+     * @return         결과값 */
+    Set<RedisDTO> getSetJSON(String redisKey) throws Exception;
 }

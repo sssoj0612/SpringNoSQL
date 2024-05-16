@@ -11,6 +11,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -322,6 +323,67 @@ public class MyRedisMapper implements IMyRedisMapper {
         log.info(this.getClass().getName() + ".getHash End!");
 
         return rDTO;
+
+    }
+
+
+    @Override // Set 구조에 JSON 형태로 저장
+    public int saveSetJSON(String redisKey, List<RedisDTO> pList) throws Exception {
+
+        log.info(this.getClass().getName() + ".saveSetJSON Start!");
+
+        int res;
+
+        /* redis 저장 및 읽기에 대한 데이터 타입 지정(String 타입으로 지정함) */
+        redisDB.setKeySerializer(new StringRedisSerializer()); // String타입
+
+        /* RedisDTO에 저장된 데이터를 자동으로 JSON으로 변경하기 */
+        redisDB.setValueSerializer(new Jackson2JsonRedisSerializer<>(RedisDTO.class)); // DTO값을 JSON으로 변환
+
+        this.deleteRedisKey(redisKey); // RedisDB 저장된 키 삭제
+
+        log.info("입력받은 데이터 수 : " + pList.size());
+
+        // Set 구조는 저장 순서에 상관없이 저장하기때문에 List 구조와 달리 방향 존재X
+        pList.forEach(dto -> {
+            redisDB.opsForSet().add(redisKey, dto);
+        });
+
+        // RedisDB에 저장되는 데이터의 유효시간 설정 (TTL 설정 필수!)
+        // 5시간이 지나면 자동으로 데이터가 삭제되도록 설정
+        redisDB.expire(redisKey, 5, TimeUnit.HOURS);
+
+        res = 1;
+
+        log.info(this.getClass().getName() + ".saveSetJSON End!");
+
+        return res;
+
+    }
+
+
+    @Override // Set 구조에 JSON 형태로 저장된 데이터 조회
+    public Set<RedisDTO> getSetJSON(String redisKey) throws Exception {
+
+        log.info(this.getClass().getName() + ".getSetJSON Start!");
+
+        Set<RedisDTO> rSet = null;
+
+        /* Redis 저장 및 읽기에 대한 데이터 타입 지정(반드시 저장할때 사용한 타입과 동일하게 맞추기) */
+        redisDB.setKeySerializer(new StringRedisSerializer()); // String 타입
+
+        /* RedisDTO에 저장된 데이터를 자동으로 JSON으로 변경하기 */
+        redisDB.setValueSerializer(new Jackson2JsonRedisSerializer<>(RedisDTO.class)); // DTO값을 JSON으로 변환
+
+        if (redisDB.hasKey(redisKey)) { // 데이터가 존재한다면 조회하기
+
+            rSet = (Set) redisDB.opsForSet().members(redisKey);
+
+        }
+
+        log.info(this.getClass().getName() + ".getSetJSON End!");
+
+        return rSet;
 
     }
 }
