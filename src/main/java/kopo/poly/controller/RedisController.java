@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -54,6 +56,24 @@ public class RedisController {
 
         return ResponseEntity.ok(
                 CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rDTO)
+        );
+    }
+
+
+    @PostMapping(value = "saveList")
+    public ResponseEntity saveList(@RequestBody List<RedisDTO> pList) throws Exception {
+
+        log.info(this.getClass().getName() + ".saveList Start!");
+
+        log.info("pList(html에서 전달 받은 값) : " + pList); // 전달 받은 값
+
+        List<String> rList = Optional.ofNullable(myRedisService.saveList(pList))
+                .orElseGet(ArrayList::new);
+
+        log.info(this.getClass().getName() + ".saveList End!");
+
+        return ResponseEntity.ok(
+                CommonResponse.of(HttpStatus.OK, HttpStatus.OK.series().name(), rList)
         );
     }
 
